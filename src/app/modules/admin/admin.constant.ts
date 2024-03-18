@@ -6,3 +6,5 @@ export const adminFilterableFields = [
 ];
 
 export const adminSearchableFields = ["name", "email", "contactNumber"];
+
+export const paginateOptions = ["page", "limit"];
