@@ -7,4 +7,4 @@ export const adminFilterableFields = [
 
 export const adminSearchableFields = ["name", "email", "contactNumber"];
 
-export const paginateOptions = ["page", "limit"];
+export const paginateOptions = ["page", "limit", "sortBy", "sortOrder"];
