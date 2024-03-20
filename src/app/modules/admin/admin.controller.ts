@@ -41,8 +41,46 @@ const getSingleAdmin = async (req: Request, res: Response) => {
     });
   }
 };
+const updateAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data = req.body;
+
+  try {
+    const result = await adminService.updateAdminIntoDB(id, data);
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Admin update successfully!",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error?.name || "Something Went Wrong!",
+      error: error,
+    });
+  }
+};
+const deleteAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await adminService.deleteAdminFromDB(id);
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Admin deleted successfully!",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error?.name || "Something Went Wrong!",
+      error: error,
+    });
+  }
+};
 
 export const adminController = {
   getAllAdmin,
   getSingleAdmin,
+  updateAdmin,
+  deleteAdmin,
 };
