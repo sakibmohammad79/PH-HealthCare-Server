@@ -1,7 +1,9 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { userRoutes } from "./app/modules/User/user.routes";
-import { adminRoutes } from "./app/modules/admin/admin.routes";
+
+import router from "./app/routes";
+import httpStatus from "http-status";
+import { globalErrorHandler } from "./app/middleWars/globalErorHandler";
 const app: Application = express();
 
 app.use(cors());
@@ -10,13 +12,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/v1", userRoutes);
-app.use("/api/v1/admin", adminRoutes);
+//application route
+app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
     message: "Ph Health Care...",
   });
 });
+
+app.use(globalErrorHandler);
 
 export default app;
