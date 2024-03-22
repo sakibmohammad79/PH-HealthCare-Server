@@ -1,12 +1,18 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
-const generateToken = (jwtPayload: JwtPayload, secret: string, exp: string) => {
-  const accessToken = jwt.sign(jwtPayload, secret as string, {
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+
+const generateToken = (jwtPayload: JwtPayload, secret: Secret, exp: string) => {
+  const token = jwt.sign(jwtPayload, secret as string, {
     algorithm: "HS256",
     expiresIn: exp,
   });
-  return accessToken;
+  return token;
+};
+
+const verifyToken = (token: string, secret: Secret) => {
+  return jwt.verify(token, secret) as JwtPayload;
 };
 
 export const jwtHelpers = {
   generateToken,
+  verifyToken,
 };

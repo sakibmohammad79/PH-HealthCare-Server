@@ -5,12 +5,14 @@ import httpStatus from "http-status";
 import { globalErrorHandler } from "./app/middleWars/globalErorHandler";
 import { apiNotFoundHandler } from "./app/middleWars/apiNotFoundHandler";
 const app: Application = express();
+import cookieParser from "cookie-parser";
 
 app.use(cors());
 
 //parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 //application route
 app.use("/api/v1", router);
