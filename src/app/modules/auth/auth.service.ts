@@ -88,7 +88,17 @@ const refreshToken = async (token: string) => {
   };
 };
 
-const changePassword = async (user, payload) => {
+const changePassword = async (
+  user: {
+    userId: string;
+    email: string;
+    role: string;
+    iat: number;
+    exp: number;
+  },
+  payload: { oldPassword: string; newPassword: string },
+  token: string
+) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -103,6 +113,15 @@ const changePassword = async (user, payload) => {
   );
   if (!isPasswordCorrect) {
     throw new Error("Old password not correct!");
+  }
+
+  const verifyToken = jwtHelpers.verifyToken(
+    token,
+    config.jwt.access_token_secret as Secret
+  );
+
+  if (!verifyToken) {
+    throw new appError(httpStatus.FORBIDDEN, "Forbidden!");
   }
 
   //hashed password

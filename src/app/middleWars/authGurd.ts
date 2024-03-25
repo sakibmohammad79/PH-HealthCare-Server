@@ -23,7 +23,6 @@ const auth = (...userRoles: string[]) => {
 
       //set user in req
       req.user = verfiedUser;
-      console.log(verfiedUser);
 
       if (userRoles.length && !userRoles.includes(verfiedUser.role)) {
         throw new appError(httpStatus.FORBIDDEN, "You are forbidden!");
