@@ -18,14 +18,20 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-const uploadToCloudinary = async (file) => {
-  cloudinary.uploader.upload(
-    "https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
-    { public_id: "olympic_flag" },
-    function (error, result) {
-      console.log(result);
-    }
-  );
+const uploadToCloudinary = async (file: any) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      file.path,
+      { public_id: file.originalname },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
 };
 
 export const fileUploader = {
