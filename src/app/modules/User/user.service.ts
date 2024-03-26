@@ -8,7 +8,6 @@ const createdUserIntoDB = async (req: any) => {
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.admin.profilePhoto = uploadToCloudinary?.secure_url;
-    console.log(req.body);
   }
   const hashedPassword = await bcrypt.hash(req.body.password, 12);
   //admin
