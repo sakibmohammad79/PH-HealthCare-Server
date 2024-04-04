@@ -14,20 +14,6 @@ const getAllAdminFromDB = async (
     paginationHelper.calculatePagination(paginateOptions);
 
   const andCondition: Prisma.AdminWhereInput[] = [];
-  // [
-  //   {
-  //     name: {
-  //       contains: params.searchTerm,
-  //       mode: "insensitive",
-  //     },
-  //   },
-  //   {
-  //     email: {
-  //       contains: params.searchTerm,
-  //       mode: "insensitive",
-  //     },
-  //   },
-  // ],
   if (params.searchTerm) {
     andCondition.push({
       OR: adminSearchableFields.map((field) => ({
