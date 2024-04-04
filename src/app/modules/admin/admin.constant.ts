@@ -1,10 +1,19 @@
-export const adminFilterableFields = [
+export const adminFilterableFields: string[] = [
   "name",
   "email",
   "contactNumber",
   "searchTerm",
 ];
 
-export const adminSearchableFields = ["name", "email", "contactNumber"];
+export const adminSearchableFields: string[] = [
+  "name",
+  "email",
+  "contactNumber",
+];
 
-export const paginateOptions = ["page", "limit", "sortBy", "sortOrder"];
+export const paginateOptions: string[] = [
+  "page",
+  "limit",
+  "sortBy",
+  "sortOrder",
+];

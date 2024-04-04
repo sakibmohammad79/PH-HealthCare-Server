@@ -1,4 +1,4 @@
-import { Gender } from "@prisma/client";
+import { Gender, UserStatus } from "@prisma/client";
 import { z } from "zod";
 
 const createAdminValidationSchema = z.object({
@@ -36,8 +36,27 @@ const createDoctorValidationSchema = z.object({
     designation: z.string({ required_error: "Designation is required!" }),
   }),
 });
+const createPatientValidationSchema = z.object({
+  password: z.string({ required_error: "Password is required!" }),
+  patient: z.object({
+    name: z.string({ required_error: "Name is required!" }),
+    email: z.string({ required_error: "Email is required!" }),
+    contactNumber: z.string({
+      required_error: "Contact Number is required!",
+    }),
+    address: z.string().optional(),
+  }),
+});
+
+const updateUserStatusValidationSchema = z.object({
+  body: z.object({
+    status: z.enum([UserStatus.ACTIVE, UserStatus.DELETED, UserStatus.BLOCKED]),
+  }),
+});
 
 export const userValidations = {
   createAdminValidationSchema,
   createDoctorValidationSchema,
+  createPatientValidationSchema,
+  updateUserStatusValidationSchema,
 };
