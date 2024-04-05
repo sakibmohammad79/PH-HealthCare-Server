@@ -6,6 +6,7 @@ import httpStatus from "http-status";
 import { userFilterableFields } from "./user.constant";
 import { paginateOptions } from "../admin/admin.constant";
 import pick from "../../../shared/pick";
+import { IAuthUser } from "../../interfaces/common";
 
 const createAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -67,13 +68,36 @@ const updateUserStatus = catchAsync(
   }
 );
 const getMyProfile = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (
+    req: Request & { user?: IAuthUser },
+    res: Response,
+    next: NextFunction
+  ) => {
     const user = req.user;
-    const result = await userService.getMyProfileIntoDB(user);
+    const result = await userService.getMyProfileIntoDB(user as IAuthUser);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "My profile data fetched successfully!",
+      data: result,
+    });
+  }
+);
+const updateMyProfile = catchAsync(
+  async (
+    req: Request & { user?: IAuthUser },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    const result = await userService.updateMyProfileIntoDB(
+      user as IAuthUser,
+      req
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My profile updated successfully!",
       data: result,
     });
   }
@@ -86,4 +110,5 @@ export const userController = {
   getAllUser,
   updateUserStatus,
   getMyProfile,
+  updateMyProfile,
 };
