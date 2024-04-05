@@ -6,6 +6,7 @@ import { ICloudinaryRequest } from "../../interfaces/file";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helper/paginationHelper";
 import { userSearchableFields } from "./user.constant";
+import { userInfo } from "os";
 
 const createAdminIntoDB = async (req: any) => {
   const file = req.file as ICloudinaryRequest;
@@ -190,10 +191,61 @@ const updateUserStatusIntoDB = async (id: string, status: UserRole) => {
   return updateUserStatus;
 };
 
+const getMyProfileIntoDB = async (user) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+      needPasswordChange: true,
+    },
+  });
+
+  let profileInfo;
+  if (userInfo.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+  if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+  if (userInfo.role === UserRole.DOCTOR) {
+    profileInfo = await prisma.doctor.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+  if (userInfo.role === UserRole.PATIENT) {
+    profileInfo = await prisma.patient.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+
+  return {
+    ...userInfo,
+    ...profileInfo,
+  };
+};
+
 export const userService = {
   createAdminIntoDB,
   createDoctorIntoDB,
   createPatientIntoDB,
   getAllUserFromDB,
   updateUserStatusIntoDB,
+  getMyProfileIntoDB,
 };
