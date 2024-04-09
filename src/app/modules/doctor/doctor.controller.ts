@@ -1,15 +1,13 @@
 import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
-import {
-  adminFilterableFields,
-  paginateOptions,
-} from "../admin/admin.constant";
 import { DoctorService } from "./doctor.service";
 import sendResponse from "../../../shared/sendResponse";
 import pick from "../../../shared/pick";
+import { doctorFilterableFields } from "./doctor.constant";
+import { paginateOptions } from "../../globalConstant/constant";
 
 const getAllDoctor = catchAsync(async (req, res, next) => {
-  const query = pick(req.query, adminFilterableFields);
+  const query = pick(req.query, doctorFilterableFields);
   const options = pick(req.query, paginateOptions);
   const result = await DoctorService.getAllDoctorFromDB(query, options);
   sendResponse(res, {

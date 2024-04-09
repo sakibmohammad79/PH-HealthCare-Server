@@ -10,10 +10,3 @@ export const adminSearchableFields: string[] = [
   "email",
   "contactNumber",
 ];
-
-export const paginateOptions: string[] = [
-  "page",
-  "limit",
-  "sortBy",
-  "sortOrder",
-];

@@ -2,26 +2,43 @@ import { Prisma, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../../helper/paginationHelper";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { IAdminFilterRequest } from "../admin/admin.interface";
-import { adminSearchableFields } from "../admin/admin.constant";
 import prisma from "../../../shared/prisma";
+import { doctorSearchableFields } from "./doctor.constant";
+import { title } from "process";
 
 const getAllDoctorFromDB = async (
-  params: IAdminFilterRequest,
+  params: any,
   paginateOptions: IPaginationOptions
 ) => {
-  const { searchTerm, ...filterData } = params;
+  const { searchTerm, specialties, ...filterData } = params;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginateOptions);
 
-  const andCondition: Prisma.AdminWhereInput[] = [];
+  const andCondition: Prisma.DoctorWhereInput[] = [];
   if (params.searchTerm) {
     andCondition.push({
-      OR: adminSearchableFields.map((field) => ({
+      OR: doctorSearchableFields.map((field) => ({
         [field]: {
           contains: params.searchTerm,
           mode: "insensitive",
         },
       })),
+    });
+  }
+
+  //doctor => doctorSpecialties => specialties => title
+  if (specialties && specialties.length > 0) {
+    andCondition.push({
+      doctorSpecialties: {
+        some: {
+          specialties: {
+            title: {
+              contains: specialties,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
     });
   }
 
@@ -39,7 +56,7 @@ const getAllDoctorFromDB = async (
     isDeleted: false,
   });
 
-  const whereCondition: Prisma.AdminWhereInput = { AND: andCondition };
+  const whereCondition: Prisma.DoctorWhereInput = { AND: andCondition };
   const result = await prisma.doctor.findMany({
     where: whereCondition,
     skip,
@@ -50,9 +67,16 @@ const getAllDoctorFromDB = async (
             [paginateOptions.sortBy]: paginateOptions.sortOrder,
           }
         : { createdAt: "desc" },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialties: true,
+        },
+      },
+    },
   });
 
-  const total = await prisma.admin.count({
+  const total = await prisma.doctor.count({
     where: whereCondition,
   });
   return {
