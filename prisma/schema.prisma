@@ -121,7 +121,7 @@ model PatientHealthData {
   hasFastSurgeries Boolean?  @default(false)
   recentAnxiety Boolean?  @default(false)
   recentDepression Boolean?  @default(false)
-  maritalStatus MaritalStatus @default(UNMARRIED)
+  maritalStatus MaritalStatus? @default(UNMARRIED)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
