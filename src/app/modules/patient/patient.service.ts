@@ -138,7 +138,7 @@ const updatePatientIntoDB = async (
   return patientUpdateResponse;
 };
 
-const deletePatientFromDB = async (id: string) => {
+const deletePatientFromDB = async (id: string): Promise<Patient | null> => {
   const patientInfo = await prisma.patient.findUniqueOrThrow({
     where: {
       id,
