@@ -1,8 +1,9 @@
 import { User } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import { IAuthUser } from "../../interfaces/common";
 
 const createDoctorScheduleIntoDB = async (
-  user: User,
+  user: any,
   payload: {
     scheduleIds: string[];
   }
