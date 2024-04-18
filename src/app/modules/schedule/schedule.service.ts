@@ -150,7 +150,35 @@ const getAllScheduleFromDB = async (
   };
 };
 
+const getScheduleByIdFromDB = async (id: string) => {
+  const scheduleData = await prisma.schedule.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  return scheduleData;
+};
+
+const deleteScheduleById = async (id: string) => {
+  await prisma.schedule.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const result = await prisma.schedule.delete({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
 export const ScheduleService = {
   createScheduleIntoDB,
   getAllScheduleFromDB,
+  getScheduleByIdFromDB,
+  deleteScheduleById,
 };

@@ -15,6 +15,7 @@ const createSchedule = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const getAllSchedule = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const filter = pick(req.query, ["startDate", "endDate"]);
@@ -34,7 +35,30 @@ const getAllSchedule = catchAsync(
   }
 );
 
+const getScheduleById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ScheduleService.getScheduleByIdFromDB(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Fetched schedule data by Id!",
+    data: result,
+  });
+});
+const deleteScheduleById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ScheduleService.deleteScheduleById(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Delete schedule by Id!",
+    data: result,
+  });
+});
+
 export const ScheduleController = {
   createSchedule,
   getAllSchedule,
+  getScheduleById,
+  deleteScheduleById,
 };
