@@ -30,10 +30,9 @@ const createDoctorScheduleIntoDB = async (
   return result;
 };
 
-const getAllMyScheduleFromDB = async (
+const getAllDoctorScheduleFromDB = async (
   params: IFilterRequest,
-  paginateOptions: IPaginationOptions,
-  user: IAuthUser
+  paginateOptions: IPaginationOptions
 ) => {
   const { startDate, endDate, ...filterData } = params;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -113,6 +112,111 @@ const getAllMyScheduleFromDB = async (
   };
 };
 
+const getAllMyScheduleFromDB = async (
+  params: IFilterRequest,
+  paginateOptions: IPaginationOptions,
+  user: IAuthUser
+) => {
+  const { startDate, endDate, ...filterData } = params;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginateOptions);
+
+  const andCondition = [];
+
+  if (startDate && endDate) {
+    andCondition.push({
+      AND: [
+        {
+          schedule: {
+            startDateTime: {
+              gte: startDate,
+            },
+          },
+        },
+        {
+          schedule: {
+            endDateTime: {
+              lte: endDate,
+            },
+          },
+        },
+      ],
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    if (
+      typeof filterData.isBooked === "string" &&
+      filterData.isBooked === "true"
+    ) {
+      filterData.isBooked = true;
+    } else if (
+      typeof filterData.isBooked === "string" &&
+      filterData.isBooked === "false"
+    ) {
+      filterData.isBooked = false;
+    }
+
+    andCondition.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const whereCondition: Prisma.DoctorSchedulesWhereInput = {
+    AND: andCondition,
+  };
+
+  const doctorSchedules = await prisma.doctorSchedules.findMany({
+    where: {
+      doctor: {
+        email: user?.email,
+      },
+    },
+  });
+
+  const doctorSchedulesIds = doctorSchedules.map(
+    (schedule) => schedule.scheduleId
+  );
+
+  const result = await prisma.schedule.findMany({
+    where: {
+      ...whereCondition,
+      id: {
+        in: doctorSchedulesIds,
+      },
+    },
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [paginateOptions.sortBy as string]: paginateOptions.sortOrder,
+          }
+        : {},
+  });
+
+  const total = await prisma.schedule.count({
+    where: {
+      ...whereCondition,
+      id: {
+        in: doctorSchedulesIds,
+      },
+    },
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 const deleteMyScheduleFromDB = async (user: IAuthUser, scheduleId: string) => {
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
@@ -151,6 +255,7 @@ const deleteMyScheduleFromDB = async (user: IAuthUser, scheduleId: string) => {
 
 export const DoctorScheduleService = {
   createDoctorScheduleIntoDB,
+  getAllDoctorScheduleFromDB,
   getAllMyScheduleFromDB,
   deleteMyScheduleFromDB,
 };

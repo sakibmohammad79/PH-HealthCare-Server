@@ -22,6 +22,23 @@ const createDoctorSchedule = catchAsync(
   }
 );
 
+const getAllDoctorSchedule = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const filter = pick(req.query, ["startDate", "endDate", "isBooked"]);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    const result = await DoctorScheduleService.getAllDoctorScheduleFromDB(
+      filter,
+      options
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Schedule data fetched successfully!",
+      data: result,
+    });
+  }
+);
+
 const getAllMySchedule = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const filter = pick(req.query, ["startDate", "endDate", "isBooked"]);
@@ -59,6 +76,7 @@ const deleteAllMySchedule = catchAsync(
 
 export const DoctorScheduleController = {
   createDoctorSchedule,
+  getAllDoctorSchedule,
   getAllMySchedule,
   deleteAllMySchedule,
 };

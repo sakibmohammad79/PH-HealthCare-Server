@@ -11,6 +11,12 @@ router.get(
   DoctorScheduleController.getAllMySchedule
 );
 
+router.get(
+  "/",
+  auth(UserRole.DOCTOR),
+  DoctorScheduleController.getAllDoctorSchedule
+);
+
 router.post(
   "/",
   auth(UserRole.DOCTOR),
