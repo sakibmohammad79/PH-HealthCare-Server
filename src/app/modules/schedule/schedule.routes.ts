@@ -5,9 +5,17 @@ import { UserRole } from "@prisma/client";
 
 const router = Router();
 
-router.get("/", auth(UserRole.DOCTOR), ScheduleController.getAllSchedule);
+router.get(
+  "/",
+  auth(UserRole.DOCTOR, UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  ScheduleController.getAllSchedule
+);
 
-router.get("/:id", ScheduleController.getScheduleById);
+router.get(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+  ScheduleController.getScheduleById
+);
 
 router.post(
   "/",
@@ -15,6 +23,10 @@ router.post(
   ScheduleController.createSchedule
 );
 
-router.delete("/:id", ScheduleController.deleteScheduleById);
+router.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  ScheduleController.deleteScheduleById
+);
 
 export const ScheduleRoutes = router;

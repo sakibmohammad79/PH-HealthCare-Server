@@ -7,19 +7,19 @@ const router = Router();
 
 router.get(
   "/my-schedule",
-  auth(UserRole.DOCTOR),
+  auth(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN),
   DoctorScheduleController.getAllMySchedule
 );
 
 router.get(
   "/",
-  auth(UserRole.DOCTOR),
+  auth(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.PATIENT),
   DoctorScheduleController.getAllDoctorSchedule
 );
 
 router.post(
   "/",
-  auth(UserRole.DOCTOR),
+  auth(UserRole.DOCTOR, UserRole.SUPER_ADMIN, UserRole.ADMIN),
   DoctorScheduleController.createDoctorSchedule
 );
 
