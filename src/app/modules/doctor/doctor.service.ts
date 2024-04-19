@@ -64,7 +64,7 @@ const getAllDoctorFromDB = async (
     orderBy:
       sortBy && sortOrder
         ? {
-            [paginateOptions.sortBy]: paginateOptions.sortOrder,
+            [paginateOptions.sortBy as string]: paginateOptions.sortOrder,
           }
         : { createdAt: "desc" },
     include: {
@@ -171,7 +171,7 @@ const updateDoctorIntoDB = async (id: string, payload: any) => {
     if (specialties && specialties.length > 0) {
       //delete specialty
       const deleteSpecialtiesIds = specialties.filter(
-        (speciality) => speciality.isDeleted
+        (speciality: { isDeleted: any }) => speciality.isDeleted
       );
       console.log(deleteSpecialtiesIds);
       for (const speciality of deleteSpecialtiesIds) {
@@ -185,7 +185,7 @@ const updateDoctorIntoDB = async (id: string, payload: any) => {
 
       //create specialty
       const createSpecialtiesIds = specialties.filter(
-        (speciality) => !speciality.isDeleted
+        (speciality: { isDeleted: any }) => !speciality.isDeleted
       );
       for (const speciality of createSpecialtiesIds) {
         await transactionClient.doctorSpecialties.create({
