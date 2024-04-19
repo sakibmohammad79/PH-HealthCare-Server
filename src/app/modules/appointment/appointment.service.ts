@@ -82,6 +82,68 @@ const createAppointmentIntoDB = async (user: IAuthUser, payload: any) => {
   return result;
 };
 
+const getAllAppointmentFromDB = async (
+  user: IAuthUser,
+  filter: any,
+  options: IPaginationOptions
+) => {
+  const { ...filterData } = filter;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
+
+  const andCondition: Prisma.AppointmentWhereInput[] = [];
+
+  if (Object.keys(filterData).length > 0) {
+    andCondition.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const whereCondition: Prisma.AppointmentWhereInput = { AND: andCondition };
+  const result = await prisma.appointment.findMany({
+    where: whereCondition,
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [options.sortBy as string]: options.sortOrder,
+          }
+        : { createdAt: "desc" },
+    include:
+      user?.role === UserRole.DOCTOR
+        ? {
+            patient: {
+              include: {
+                medicalReport: true,
+                patientHealthData: true,
+              },
+            },
+            schedule: true,
+          }
+        : {
+            doctor: true,
+            schedule: true,
+          },
+  });
+
+  const total = await prisma.appointment.count({
+    where: whereCondition,
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 const getMyAllAppointmentFromDB = async (
   user: IAuthUser,
   filter: any,
@@ -160,5 +222,6 @@ const getMyAllAppointmentFromDB = async (
 
 export const AppointmentService = {
   createAppointmentIntoDB,
+  getAllAppointmentFromDB,
   getMyAllAppointmentFromDB,
 };

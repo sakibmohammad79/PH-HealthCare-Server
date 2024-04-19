@@ -21,6 +21,26 @@ const createAppointment = catchAsync(
     });
   }
 );
+
+const getAllAppointment = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const filter = pick(req.query, ["status", "paymentStatus"]);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    const user = req.user;
+    const result = await AppointmentService.getAllAppointmentFromDB(
+      user as IAuthUser,
+      filter,
+      options
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Appointment data fetched successfully!",
+      data: result,
+    });
+  }
+);
+
 const getMyAllAppointment = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const filter = pick(req.query, ["status", "paymentStatus"]);
@@ -42,5 +62,6 @@ const getMyAllAppointment = catchAsync(
 
 export const AppointmentController = {
   createAppointment,
+  getAllAppointment,
   getMyAllAppointment,
 };
