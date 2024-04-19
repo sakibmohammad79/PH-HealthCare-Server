@@ -5,7 +5,8 @@ import httpStatus from "http-status";
 import { PaymentService } from "./payment.service";
 
 const paymentInit = catchAsync(async (req: Request, res: Response) => {
-  const result = await PaymentService.paymentInit();
+  const { appointmentId } = req.params;
+  const result = await PaymentService.paymentInit(appointmentId);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -13,7 +14,17 @@ const paymentInit = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const validatePayment = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.validatePayment(req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Payment validate successfully!",
+    data: result,
+  });
+});
 
 export const PaymentController = {
   paymentInit,
+  validatePayment,
 };
