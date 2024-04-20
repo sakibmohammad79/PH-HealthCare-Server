@@ -1,7 +1,6 @@
 import { Prisma, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../../helper/paginationHelper";
 import { IPaginationOptions } from "../../interfaces/pagination";
-import { IAdminFilterRequest } from "../admin/admin.interface";
 import prisma from "../../../shared/prisma";
 import { doctorSearchableFields } from "./doctor.constant";
 import { title } from "process";
@@ -62,11 +61,11 @@ const getAllDoctorFromDB = async (
     skip,
     take: limit,
     orderBy:
-      sortBy && sortOrder
+      paginateOptions.sortBy && paginateOptions.sortOrder
         ? {
             [paginateOptions.sortBy as string]: paginateOptions.sortOrder,
           }
-        : { createdAt: "desc" },
+        : { averageRating: "desc" },
     include: {
       doctorSpecialties: {
         include: {

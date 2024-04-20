@@ -5,6 +5,12 @@ import { ReviewController } from "./review.controller";
 
 const router = Router();
 
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  ReviewController.getAllReview
+);
+
 router.post(
   "/my-review",
   auth(UserRole.PATIENT),

@@ -1,4 +1,9 @@
-import { AppointmentStatus, PaymentStatus, Prescription } from "@prisma/client";
+import {
+  AppointmentStatus,
+  PaymentStatus,
+  Prescription,
+  Prisma,
+} from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/common";
 import appError from "../../errors/appError";
@@ -82,7 +87,87 @@ const getMyPrescriptionIntoDB = async (
   };
 };
 
+const getAllPrescriptionFromDB = async (
+  filter: any,
+  paginateOptions: IPaginationOptions
+) => {
+  const { ...filterData } = filter;
+  const { page, limit, skip } =
+    paginationHelper.calculatePagination(paginateOptions);
+  const andCondition: Prisma.PrescriptionWhereInput[] = [];
+
+  if (filterData.doctorEmail) {
+    andCondition.push({
+      doctor: {
+        email: {
+          equals: filterData.doctorEmail,
+        },
+      },
+    });
+  }
+
+  if (filterData.patientEmail) {
+    andCondition.push({
+      patient: {
+        email: {
+          equals: filterData.patientEmail,
+        },
+      },
+    });
+  }
+
+  if (filterData.doctorName) {
+    andCondition.push({
+      doctor: {
+        name: {
+          equals: filterData.doctorName,
+        },
+      },
+    });
+  }
+
+  if (filterData.patientName) {
+    andCondition.push({
+      patient: {
+        name: {
+          equals: filterData.patientName,
+        },
+      },
+    });
+  }
+
+  const whereCondition: Prisma.PrescriptionWhereInput = { AND: andCondition };
+  const result = await prisma.prescription.findMany({
+    where: whereCondition,
+    skip,
+    take: limit,
+    orderBy:
+      paginateOptions.sortBy && paginateOptions.sortOrder
+        ? {
+            [paginateOptions.sortBy as string]: paginateOptions.sortOrder,
+          }
+        : { createdAt: "desc" },
+    include: {
+      doctor: true,
+      patient: true,
+    },
+  });
+
+  const total = await prisma.prescription.count({
+    where: whereCondition,
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 export const PrescriptionService = {
   createPrescriptionIntoDB,
   getMyPrescriptionIntoDB,
+  getAllPrescriptionFromDB,
 };

@@ -10,6 +10,12 @@ router.get(
   auth(UserRole.PATIENT),
   PrescriptionController.getMyPrescription
 );
+
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  PrescriptionController.getAllPrescription
+);
 router.post(
   "/",
   auth(UserRole.DOCTOR),
