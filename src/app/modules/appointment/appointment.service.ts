@@ -3,7 +3,14 @@ import { IAuthUser } from "../../interfaces/common";
 import { v4 as uuidv4 } from "uuid";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helper/paginationHelper";
-import { Prisma, UserRole } from "@prisma/client";
+import {
+  AppointmentStatus,
+  PaymentStatus,
+  Prisma,
+  UserRole,
+} from "@prisma/client";
+import appError from "../../errors/appError";
+import httpStatus from "http-status";
 
 const createAppointmentIntoDB = async (user: IAuthUser, payload: any) => {
   const patientData = await prisma.patient.findFirstOrThrow({
@@ -220,8 +227,92 @@ const getMyAllAppointmentFromDB = async (
   };
 };
 
+const changeAppointmentStatus = async (
+  appointnmetId: string,
+  status: AppointmentStatus,
+  user: IAuthUser
+) => {
+  const appointmentData = await prisma.appointment.findFirstOrThrow({
+    where: {
+      id: appointnmetId,
+    },
+    include: {
+      doctor: true,
+    },
+  });
+
+  if (user?.role === UserRole.DOCTOR) {
+    if (!(user.email === appointmentData.doctor.email)) {
+      throw new appError(
+        httpStatus.BAD_REQUEST,
+        "This is not your appointment!"
+      );
+    }
+  }
+
+  const result = await prisma.appointment.update({
+    where: {
+      id: appointmentData.id,
+    },
+    data: {
+      status,
+    },
+  });
+
+  return result;
+};
+
+const cancelUnpaidAppointment = async () => {
+  const thirtyMunitesAgo = new Date(Date.now() - 2 * 60 * 1000);
+
+  const unpaidAppointments = await prisma.appointment.findMany({
+    where: {
+      createdAt: {
+        lte: thirtyMunitesAgo,
+      },
+      paymentStatus: PaymentStatus.UNPAID,
+    },
+  });
+
+  const unpaidAppointmentIds = unpaidAppointments.map(
+    (Appointment) => Appointment.id
+  );
+
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.deleteMany({
+      where: {
+        appointmentId: {
+          in: unpaidAppointmentIds,
+        },
+      },
+    });
+
+    await tx.appointment.deleteMany({
+      where: {
+        id: {
+          in: unpaidAppointmentIds,
+        },
+      },
+    });
+
+    for (const unpaidAppointment of unpaidAppointments) {
+      await tx.doctorSchedules.updateMany({
+        where: {
+          doctorId: unpaidAppointment.doctorId,
+          scheduleId: unpaidAppointment.scheduleId,
+        },
+        data: {
+          isBooked: false,
+        },
+      });
+    }
+  });
+};
+
 export const AppointmentService = {
   createAppointmentIntoDB,
   getAllAppointmentFromDB,
   getMyAllAppointmentFromDB,
+  changeAppointmentStatus,
+  cancelUnpaidAppointment,
 };

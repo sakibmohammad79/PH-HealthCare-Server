@@ -1,11 +1,12 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import router from "./app/routes";
-import httpStatus from "http-status";
 import { globalErrorHandler } from "./app/middleWars/globalErorHandler";
 import { apiNotFoundHandler } from "./app/middleWars/apiNotFoundHandler";
 const app: Application = express();
 import cookieParser from "cookie-parser";
+import { AppointmentService } from "./app/modules/appointment/appointment.service";
+import cron from "node-cron";
 
 app.use(cors());
 
@@ -16,6 +17,14 @@ app.use(cookieParser());
 
 //application route
 app.use("/api/v1", router);
+
+cron.schedule("* * * * *", () => {
+  try {
+    AppointmentService.cancelUnpaidAppointment();
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
