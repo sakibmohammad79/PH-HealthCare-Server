@@ -4,7 +4,6 @@ import { IAuthUser } from "../../interfaces/common";
 import { IFilterRequest } from "../schedule/schedule.interface";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helper/paginationHelper";
-import { boolean } from "zod";
 import appError from "../../errors/appError";
 import httpStatus from "http-status";
 
