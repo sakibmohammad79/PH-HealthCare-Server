@@ -9,6 +9,8 @@ import { userSearchableFields } from "./user.constant";
 import { userInfo } from "os";
 import { Request } from "express";
 import { IAuthUser } from "../../interfaces/common";
+import appError from "../../errors/appError";
+import httpStatus from "http-status";
 
 const createAdminIntoDB = async (req: any) => {
   const file = req.file as IFile;
@@ -77,6 +79,18 @@ const createPatientIntoDB = async (req: any) => {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.patient.profilePhoto = uploadToCloudinary?.secure_url;
   }
+
+  //check similler patient is exists
+  const isPatientExists = await prisma.patient.findUnique({
+    where: {
+      email: req.body.patient.email,
+    },
+  });
+  const existsHttpStatus = 403;
+  if (isPatientExists) {
+    throw new appError(existsHttpStatus, "This patient already exists!");
+  }
+
   const hashedPassword = await bcrypt.hash(req.body.password, 12);
   //patient
   const userData = {
