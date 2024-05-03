@@ -41,6 +41,7 @@ const createAdminIntoDB = async (req: any) => {
 };
 
 const createDoctorIntoDB = async (req: any) => {
+  console.log(req);
   const file = req.file as IFile;
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
@@ -61,10 +62,10 @@ const createDoctorIntoDB = async (req: any) => {
     });
 
     //create doctor
-    const createAdmin = await transactionClient.doctor.create({
+    const createDoctor = await transactionClient.doctor.create({
       data: req.body.doctor,
     });
-    return createAdmin;
+    return createDoctor;
   });
 
   return result;
@@ -91,10 +92,10 @@ const createPatientIntoDB = async (req: any) => {
     });
 
     //create patient
-    const createAdmin = await transactionClient.patient.create({
+    const createPatient = await transactionClient.patient.create({
       data: req.body.patient,
     });
-    return createAdmin;
+    return createPatient;
   });
   return result;
 };
@@ -139,7 +140,7 @@ const getAllUserFromDB = async (
     orderBy:
       sortBy && sortOrder
         ? {
-            [paginateOptions.sortBy]: paginateOptions.sortOrder,
+            [paginateOptions.sortBy as string]: paginateOptions.sortOrder,
           }
         : { createdAt: "desc" },
     select: {

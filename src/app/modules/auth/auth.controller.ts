@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { AuthService } from "./auth.service";
 import { Request, Response } from "express";
+import appError from "../../errors/appError";
 
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthService.loginUser(req.body);
@@ -32,6 +33,9 @@ const refreshToken = catchAsync(async (req, res) => {
 const changePassword = catchAsync(
   async (req: Request & { user?: any }, res: Response) => {
     const token = req.headers.authorization;
+    if (!token) {
+      throw new appError(httpStatus.FORBIDDEN, "Forbidden!");
+    }
     const user = req.user;
     const result = await AuthService.changePassword(user, req.body, token);
     sendResponse(res, {

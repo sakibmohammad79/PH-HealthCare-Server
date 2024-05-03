@@ -4,9 +4,10 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
 import { userFilterableFields } from "./user.constant";
-import { paginateOptions } from "../admin/admin.constant";
+
 import pick from "../../../shared/pick";
 import { IAuthUser } from "../../interfaces/common";
+import { paginateOptions } from "../../globalConstant/constant";
 
 const createAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -42,7 +43,7 @@ const createPatient = catchAsync(
   }
 );
 
-const getAllUser = catchAsync(async (req, res, next) => {
+const getAllUser = catchAsync(async (req: Request, res: Response) => {
   const query = pick(req.query, userFilterableFields);
   const options = pick(req.query, paginateOptions);
   const result = await userService.getAllUserFromDB(query, options);
